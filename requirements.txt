@@ -1,0 +1,5 @@
+isodate==0.7.2
+neo4j==5.28.1
+pyparsing==3.2.3
+pytz==2025.2
+rdflib==7.1.4

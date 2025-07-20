@@ -1,0 +1,21 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ns1: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:Alice a foaf:Person ;
+    ns1:age 30 ;
+    ns1:likes ns1:GraphDB ;
+    foaf:knows ns1:Bob ;
+    foaf:name "Alice" .
+
+ns1:Dave a foaf:Person ;
+    ns1:age 40 ;
+    ns1:likes ns1:DistributedSystems ;
+    foaf:name "Dave" .
+
+ns1:Bob a foaf:Person ;
+    ns1:age 32 ;
+    ns1:likes ns1:GraphDB ;
+    foaf:knows ns1:Carol ;
+    foaf:name "Bob" .
+
