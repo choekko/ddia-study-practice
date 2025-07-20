@@ -3,7 +3,6 @@
 1. 루트에서 venv 활성화
 ```bash
 python3 -m venv .venv
-pip install -r requirements.txt
 ```
 
 2. 의존성 설치
