@@ -3,3 +3,7 @@ neo4j==5.28.1
 pyparsing==3.2.3
 pytz==2025.2
 rdflib==7.1.4
+
+pymongo~=4.14.0
+cassandra-driver~=3.29.2
+requests~=2.32.4

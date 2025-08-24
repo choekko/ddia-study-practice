@@ -1,0 +1,102 @@
+
+networks:
+  cassandra_net:
+    name: replication_default   # 네트워크 이름 고정
+    driver: bridge
+
+services:
+  # --- MongoDB Replica Set (3노드, 리더 기반) ---
+  mongo1:
+    image: mongo:6
+    command: ["--replSet","rs0","--bind_ip_all"]
+    ports: ["27017:27017"]
+  mongo2:
+    image: mongo:6
+    command: ["--replSet","rs0","--bind_ip_all"]
+    ports: ["27018:27017"]
+  mongo3:
+    image: mongo:6
+    command: ["--replSet","rs0","--bind_ip_all"]
+    ports: ["27019:27017"]
+
+  mongosetup:
+    image: mongo:6
+    depends_on: [mongo1, mongo2, mongo3]
+    entrypoint:
+      - bash
+      - -lc
+      - >
+        # mongo1이 응답할 때까지 대기
+        until mongosh --host mongo1:27017 --quiet --eval 'db.runCommand({ping:1})' >/dev/null 2>&1; do sleep 1; done;
+        # 레플리카셋 초기화(이미 되어 있으면 에러 무시)
+        mongosh --host mongo1:27017 --quiet --eval
+        'try{
+          rs.initiate({_id:"rs0",members:[
+            {_id:0,host:"mongo1:27017"},
+            {_id:1,host:"mongo2:27017"},
+            {_id:2,host:"mongo3:27017"}
+          ]})
+        }catch(e){print("init maybe already done: "+e)}';
+        # 컨테이너가 바로 종료되지 않도록 대기(옵션)
+        tail -f /dev/null
+
+  # --- Cassandra (3노드, 리더리스) ---
+  cassandra1:
+    image: cassandra:4.1
+    container_name: cassandra1
+    environment:
+      - CASSANDRA_CLUSTER_NAME=bench
+      - CASSANDRA_SEEDS=cassandra1
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - MAX_HEAP_SIZE=512M
+      - HEAP_NEWSIZE=128M
+      - CASSANDRA_NUM_TOKENS=8
+      - JVM_EXTRA_OPTS=-Dcassandra.available_processors=2
+    ports: ["9042:9042"]
+
+  cassandra2:
+    image: cassandra:4.1
+    container_name: cassandra2
+    environment:
+      - CASSANDRA_CLUSTER_NAME=bench
+      - CASSANDRA_SEEDS=cassandra1
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - MAX_HEAP_SIZE=512M
+      - HEAP_NEWSIZE=128M
+      - CASSANDRA_NUM_TOKENS=8
+      - JVM_EXTRA_OPTS=-Dcassandra.available_processors=2
+    depends_on: [cassandra1]
+
+  cassandra3:
+    image: cassandra:4.1
+    container_name: cassandra3
+    environment:
+      - CASSANDRA_CLUSTER_NAME=bench
+      - CASSANDRA_SEEDS=cassandra1
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - MAX_HEAP_SIZE=512M
+      - HEAP_NEWSIZE=128M
+      - CASSANDRA_NUM_TOKENS=8
+      - JVM_EXTRA_OPTS=-Dcassandra.available_processors=2
+    depends_on: [cassandra1]
+
+
+  # --- CouchDB (2노드, 다중 리더: 양방향 복제) ---
+  couch1:
+    image: couchdb:3
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=pass
+    ports: ["5984:5984"]
+  couch2:
+    image: couchdb:3
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=pass
+    ports: ["5985:5984"]
