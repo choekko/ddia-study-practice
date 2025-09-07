@@ -1,0 +1,4 @@
+{"event": "VOTE", "txid": "tx-002", "vote": "NO", "delta": {"carol": -50}, "ts": 1757235723.459844}
+{"event": "ABORT", "txid": "tx-002", "ts": 1757235723.4599879}
+{"event": "VOTE", "txid": "tx-002", "vote": "NO", "delta": {"carol": -50}, "ts": 1757235785.08288}
+{"event": "ABORT", "txid": "tx-002", "ts": 1757235785.083045}

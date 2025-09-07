@@ -1,0 +1,11 @@
+{"event": "PREPARED", "txid": "tx-001", "delta": {"bob": 100}, "ts": 1757235723.459359}
+{"event": "COMMIT", "txid": "tx-001", "ts": 1757235723.459705}
+{"event": "PREPARED", "txid": "tx-002", "delta": {"bob": 50}, "ts": 1757235723.459908}
+{"event": "ABORT", "txid": "tx-002", "ts": 1757235723.460022}
+{"event": "PREPARED", "txid": "tx-003", "delta": {"bob": 50}, "ts": 1757235723.4603}
+{"event": "PREPARED", "txid": "tx-001", "delta": {"bob": 100}, "ts": 1757235785.082535}
+{"event": "COMMIT", "txid": "tx-001", "ts": 1757235785.082743}
+{"event": "PREPARED", "txid": "tx-002", "delta": {"bob": 50}, "ts": 1757235785.082968}
+{"event": "ABORT", "txid": "tx-002", "ts": 1757235785.083085}
+{"event": "PREPARED", "txid": "tx-003", "delta": {"bob": 50}, "ts": 1757235785.0832472}
+{"event": "COMMIT", "txid": "tx-003", "ts": 1757235788.088647}

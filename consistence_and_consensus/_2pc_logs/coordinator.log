@@ -1,0 +1,18 @@
+{"event": "BEGIN", "txid": "tx-001", "ts": 1757235723.458962}
+{"event": "DECISION", "txid": "tx-001", "decision": "COMMIT", "ts": 1757235723.4596071}
+{"event": "END", "txid": "tx-001", "outcome": "COMMIT", "ts": 1757235723.459745}
+{"event": "BEGIN", "txid": "tx-002", "ts": 1757235723.459807}
+{"event": "DECISION", "txid": "tx-002", "decision": "ABORT", "ts": 1757235723.459949}
+{"event": "END", "txid": "tx-002", "outcome": "ABORT", "ts": 1757235723.460055}
+{"event": "BEGIN", "txid": "tx-003", "ts": 1757235723.460149}
+{"event": "DECISION", "txid": "tx-003", "decision": "COMMIT", "ts": 1757235723.460354}
+{"event": "END", "txid": "tx-003", "outcome": "COMMIT", "ts": 1757235723.460452}
+{"event": "BEGIN", "txid": "tx-001", "ts": 1757235785.082168}
+{"event": "DECISION", "txid": "tx-001", "decision": "COMMIT", "ts": 1757235785.0826519}
+{"event": "END", "txid": "tx-001", "outcome": "COMMIT", "ts": 1757235785.082779}
+{"event": "BEGIN", "txid": "tx-002", "ts": 1757235785.082842}
+{"event": "DECISION", "txid": "tx-002", "decision": "ABORT", "ts": 1757235785.08301}
+{"event": "END", "txid": "tx-002", "outcome": "ABORT", "ts": 1757235785.0831192}
+{"event": "BEGIN", "txid": "tx-003", "ts": 1757235785.083168}
+{"event": "DECISION", "txid": "tx-003", "decision": "COMMIT", "ts": 1757235785.083286}
+{"event": "END", "txid": "tx-003", "outcome": "COMMIT", "ts": 1757235785.083361}
