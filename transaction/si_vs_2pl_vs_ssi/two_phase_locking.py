@@ -5,37 +5,29 @@ class RWLock:
     - 공정성/대기열은 생략 (데모 목적)
     """
     def __init__(self):
-        self.readers = 0
-        self.writer = False
+        self.readers = []
+        self.writer = None
 
-    def acquire_shared(self) -> bool:
+    def acquire_shared(self, t_id) -> bool:
         if self.writer:
             return False
-        self.readers += 1
+        self.readers.append(t_id)
         return True
 
-    def release_shared(self):
-        assert self.readers > 0
-        self.readers -= 1
+    def release_shared(self, t_id):
+        assert len(self.readers) > 0
+        self.readers.remove(t_id)
 
-    def acquire_exclusive(self) -> bool:
-        if self.writer or self.readers > 0:
+    def acquire_exclusive(self, t_id) -> bool:
+        if self.writer or len(self.readers) > 1 or t_id not in self.readers:
             return False
-        self.writer = True
+        self.writer = t_id
+        self.readers = []
         return True
 
-    def release_exclusive(self):
-        assert self.writer
-        self.writer = False
-
-    def try_upgrade(self, txid=None):
-        # 내가 유일한 S 보유자(readers==1)이고, 아직 X가 없을 때만
-        if self.writer is not None or self.readers != 1:
-            return False
-        # 공백 없이 S→X 승격
-        self.readers = 0
-        self.writer = txid or True
-        return True
+    def release_exclusive(self, t_id):
+        assert self.writer is t_id
+        self.writer = None
 
 
 class LockManager:
@@ -51,25 +43,22 @@ class LockManager:
             self.locks[name] = RWLock()
         return self.locks[name]
 
-    def try_acquire(self, name: str, mode: str) -> bool:
+    def try_acquire(self, name: str, mode: str, t_id: str) -> bool:
         lk = self._get(name)
         if mode == "S":
-            return lk.acquire_shared()
+            return lk.acquire_shared(t_id)
         if mode == "X":
-            return lk.acquire_exclusive()
+            return lk.acquire_exclusive(t_id)
         raise ValueError("mode must be 'S' or 'X'")
 
-    def release(self, name: str, mode: str):
+    def release(self, name: str, mode: str, t_id: str):
         lk = self._get(name)
         if mode == "S":
-            lk.release_shared()
+            lk.release_shared(t_id)
         elif mode == "X":
-            lk.release_exclusive()
+            lk.release_exclusive(t_id)
         else:
             raise ValueError("mode must be 'S' or 'X'")
-
-    def try_upgrade(self, name, txid=None):
-        return self._get(name).try_upgrade(txid)
 
 def demo_2pl():
     """
@@ -86,24 +75,29 @@ def demo_2pl():
     store = {"A_on": True, "B_on": True}
     lm = LockManager()
 
-    # 두 트랜잭션이 동시에 '누군가 on-call인가?' 서술 잠금을 읽기(S)
-    assert lm.try_acquire("pred:on_call_exists", "S")
-    assert lm.try_acquire("pred:on_call_exists", "S")
-
-    # T1: 업그레이드 시도 → 실패(동시 S 보유자 2명이므로 readers!=1) → 롤백
-    t1_upgraded = lm.try_upgrade("pred:on_call_exists", txid="T1")
     t1_committed = False
-    if not t1_upgraded:
-        lm.release("pred:on_call_exists", "S")  # T1 포기
-
-    # T2: 이제 자신만 S를 보유(readers==1)이므로 업그레이드 성공 → 쓰기 진행
-    t2_upgraded = lm.try_upgrade("pred:on_call_exists", txid="T2")
     t2_committed = False
+
+    # 두 트랜잭션이 동시에 'on-call 인 row를 읽기 위한' 서술 공유 잠금을 얻기(S)
+    assert lm.try_acquire("pred:on_call_exists", "S", "T1")
+    assert lm.try_acquire("pred:on_call_exists", "S", "T2")
+
+    # T1: on-call 인 row 의 정보를 변경(쓰기)할  수 있도록, 독점 잠금으로 업그레이드 시도
+    # pred:on_call_exists 에 대한 서술 공유 잠금을 가진 다른 트랜잭션이 있으므로, 서로 대기를 하게 됨 (데드락)
+    # 여기서는 upgrade가 실패한 걸로 표기
+    t1_upgraded = lm.try_acquire("pred:on_call_exists", "X", "T1")
+    t2_upgraded = lm.try_acquire("pred:on_call_exists", "X", "T2")
+
+    # deadlock detection 에 의한 후처리 진행
+    if not t1_upgraded and not t2_upgraded:
+        # 여기서는 t1 롤백하여 t2 가 업그레이드 되도록 처리
+        lm.release("pred:on_call_exists", "S", "T1")
+        t1_committed = False
+        t2_upgraded = lm.try_acquire("pred:on_call_exists", "X", "T2")
+
     if t2_upgraded:
-        if lm.try_acquire("B_on", "X"):
-            store["B_on"] = False
-            t2_committed = True
-            lm.release("B_on", "X")
-        lm.release("pred:on_call_exists", "X")
+        store["B_on"] = False
+        t2_committed = True
+        lm.release("pred:on_call_exists", "X", "T2")
 
     return {"final": store, "t1_committed": t1_committed, "t2_committed": t2_committed}
