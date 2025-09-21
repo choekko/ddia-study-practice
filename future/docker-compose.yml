@@ -1,0 +1,30 @@
+services:
+  mongo:
+    image: mongo:6
+    container_name: demo-mongo
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+
+  postgres:
+    # mongo_fdw 포함된 이미지(예시). 조직 정책상 불가하면 직접 빌드 사용.
+    image: toleg/postgres_mongo_fdw:15.2_fdw5.5.0
+    container_name: demo-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: local_db
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d local_db"]
+      interval: 5s
+      timeout: 2s
+      retries: 20

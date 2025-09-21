@@ -1,8 +1,4 @@
-{"event": "PREPARED", "txid": "tx-001", "delta": {"alice": -100}, "ts": 1757235723.459239}
-{"event": "COMMIT", "txid": "tx-001", "ts": 1757235723.459658}
-{"event": "PREPARED", "txid": "tx-003", "delta": {"alice": -50}, "ts": 1757235723.460236}
-{"event": "COMMIT", "txid": "tx-003", "ts": 1757235723.460395}
-{"event": "PREPARED", "txid": "tx-001", "delta": {"alice": -100}, "ts": 1757235785.082335}
-{"event": "COMMIT", "txid": "tx-001", "ts": 1757235785.0826979}
-{"event": "PREPARED", "txid": "tx-003", "delta": {"alice": -50}, "ts": 1757235785.083207}
-{"event": "COMMIT", "txid": "tx-003", "ts": 1757235785.083325}
+{"event": "PREPARED", "txid": "tx-001", "delta": {"alice": -100}, "ts": 1757243510.62374}
+{"event": "COMMIT", "txid": "tx-001", "ts": 1757243510.623919}
+{"event": "PREPARED", "txid": "tx-003", "delta": {"alice": -50}, "ts": 1757243510.6244}
+{"event": "COMMIT", "txid": "tx-003", "ts": 1757243510.6245198}
